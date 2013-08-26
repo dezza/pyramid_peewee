@@ -2,7 +2,7 @@ import peewee
 import sys
 from .skeletons import AdapterSkeleton
 from .skeletons import DatabaseSkeleton
-
+import playhouse.signals
 class ModelPool(object):
     def __init__(self):
         self.registerd_models = []
@@ -38,13 +38,15 @@ class ModelManagement(object):
         pool = self.pool
         _database = self.database
 
+        #class ModelMetaWithPool(peewee.BaseModel): #peewee.BaseModel is Metaclass
         class ModelMetaWithPool(peewee.BaseModel): #peewee.BaseModel is Metaclass
             def __new__(cls, name, bases, attrs):
                 cls = super(ModelMetaWithPool, cls).__new__(cls, name, bases, attrs)
                 pool.add(cls)
                 return cls
 
-        class BaseModel(peewee.Model, metaclass=ModelMetaWithPool):
+        #class BaseModel(peewee.Model, metaclass=ModelMetaWithPool):
+        class BaseModel(playhouse.signals.Model, metaclass=ModelMetaWithPool):
             @classmethod
             def _is_basemodel(cls):
                 return cls == BaseModel
@@ -57,10 +59,10 @@ class ModelManagement(object):
     def is_setuped(self):
         return not hasattr(self.database, "concrete")
 
-    def setup(self, db_type, new_name, connect_kwargs=None):
+    def setup(self, db_type, new_name, fields=None, connect_kwargs=None):
         ## sinot mde effect
         self.database.rename(new_name)
-        database = self.database.concrete(db_type, connect_kwargs or {})
+        database = self.database.concrete(db_type, fields, connect_kwargs or {})
         for m in self.pool.consume():
             m._meta.database = database
         self.database = database #over write

@@ -13,7 +13,7 @@ class AdapterSkeleton(object):
             return peewee.PostgresqlAdapter
         else:
             raise NotImplementedError("%s is not support. support: sqlite, mysql, postgresql" % db_type)
-        
+
     def concrete(self, db_type):
         db_type = db_type.lower()
         return self.dispatch(db_type)() # return instance
@@ -30,14 +30,16 @@ class DatabaseSkeleton(peewee.Database): #TODO: add help message (when calling a
             return peewee.PostgresqlDatabase
         else:
             raise NotImplementedError("%s is not support. support: sqlite, mysql, postgresql" % db_type)
-        
-    def concrete(self, db_type, _connect_kwargs=None):
+
+    def concrete(self, db_type, fields=None, _connect_kwargs=None):
         kwargs = copy.copy(self.connect_kwargs)
         if _connect_kwargs:
             kwargs.update(_connect_kwargs)
 
         dbclass = self.dispatch(db_type.lower())
         dbname = self.database
+        if fields:
+            return dbclass(dbname, fields=fields, **kwargs) #return instance
         return dbclass(dbname, **kwargs) #return instance
 
     def rename(self, new_name):

@@ -1,7 +1,7 @@
 import peewee
 import sys
-from skeletons import AdapterSkeleton
-from skeletons import DatabaseSkeleton
+from .skeletons import AdapterSkeleton
+from .skeletons import DatabaseSkeleton
 
 class ModelPool(object):
     def __init__(self):
@@ -44,9 +44,7 @@ class ModelManagement(object):
                 pool.add(cls)
                 return cls
 
-        class BaseModel(peewee.Model):
-            __metaclass__ = ModelMetaWithPool
-            
+        class BaseModel(peewee.Model, metaclass=ModelMetaWithPool):
             @classmethod
             def _is_basemodel(cls):
                 return cls == BaseModel
@@ -58,7 +56,7 @@ class ModelManagement(object):
 
     def is_setuped(self):
         return not hasattr(self.database, "concrete")
-    
+
     def setup(self, db_type, new_name, connect_kwargs=None):
         ## sinot mde effect
         self.database.rename(new_name)
@@ -73,7 +71,7 @@ class ModelManagement(object):
 
         for m in self.pool.consumed_models:
             m.drop_table()
-        
+
     def populate(self, force=False):
         if not self.is_setuped:
             raise Exception("please. self.setup(db_type, new_name)")

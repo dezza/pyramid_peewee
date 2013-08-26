@@ -14,15 +14,15 @@ class Spell(Base):
     name = pw.CharField()
 
 def main(dbtype, dbname, kwargs=None):
-    print "dbtype:%s,  dbname:%s" % (dbtype, dbname)
+    print(("dbtype:%s,  dbname:%s" % (dbtype, dbname)))
     Management.setup(dbtype, dbname, **(kwargs or {}))
     Management.populate()
-    
-    book = SpellBook.create(title="foo", published_at=datetime.now())
-    fire = Spell.create(book=book, title="fire")
 
-    selected_book = SpellBook.select().where(id=1).get() == book
-    print list(Spell.filter(book=selected_book))
+    book = SpellBook.create(title="foo", published_at=datetime.now())
+    fire = Spell.create(book=book, name='curse of fucking',title="fire")
+
+    selected_book = SpellBook.get()
+    print((list(Spell.filter(book=selected_book))))
     Management.drop_all()
 
 if __name__ == "__main__":

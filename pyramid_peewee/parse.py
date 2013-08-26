@@ -1,5 +1,5 @@
 ## parse
-import urlparse
+from urllib import parse as urlparse
 
 """
 [sqlite]
@@ -13,7 +13,7 @@ url = postgresql://foo:bar@localhost:5432/mydatabase
 
 def setup_from_url_factory(setup_function):
     def get_options(parsed, opts):
-        r = opts or {} 
+        r = opts or {}
         if parsed.username:
             r["user"] = parsed.username
         if parsed.password:

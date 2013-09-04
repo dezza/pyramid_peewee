@@ -1,8 +1,10 @@
 import peewee
 import sys
-from .skeletons import AdapterSkeleton
+#from .skeletons import AdapterSkeleton
 from .skeletons import DatabaseSkeleton
 import playhouse.signals
+
+
 class ModelPool(object):
     def __init__(self):
         self.registerd_models = []
@@ -29,6 +31,7 @@ class ModelPool(object):
     def is_consumed(self):
         return not bool(self.registerd_models)
 
+
 class ModelManagement(object):
     def __init__(self, pool, dummy_name):
         self.pool = pool
@@ -38,10 +41,12 @@ class ModelManagement(object):
         pool = self.pool
         _database = self.database
 
-        #class ModelMetaWithPool(peewee.BaseModel): #peewee.BaseModel is Metaclass
-        class ModelMetaWithPool(peewee.BaseModel): #peewee.BaseModel is Metaclass
+        #class ModelMetaWithPool(peewee.BaseModel):
+        #peewee.BaseModel is Metaclass
+        class ModelMetaWithPool(peewee.BaseModel):
             def __new__(cls, name, bases, attrs):
-                cls = super(ModelMetaWithPool, cls).__new__(cls, name, bases, attrs)
+                cls = super(ModelMetaWithPool, cls).__new__(cls, name,
+                                                            bases, attrs)
                 pool.add(cls)
                 return cls
 
@@ -60,12 +65,14 @@ class ModelManagement(object):
         return not hasattr(self.database, "concrete")
 
     def setup(self, db_type, new_name, fields=None, connect_kwargs=None):
+        print(connect_kwargs)
         ## sinot mde effect
         self.database.rename(new_name)
-        database = self.database.concrete(db_type, fields, connect_kwargs or {})
+        database = self.database.concrete(db_type, fields,
+                                          connect_kwargs or {})
         for m in self.pool.consume():
             m._meta.database = database
-        self.database = database #over write
+        self.database = database  # over write
 
     def drop_all(self):
         if not self.is_setuped:
@@ -93,11 +100,14 @@ class ModelManagement(object):
             return list(self.pool.consumed_models)
         else:
             ## TODO:using logger?
+            print("WARNING: THIS IS FUCKING ABOUT TO BREAK! \
+                   OPEN YOUR FUCKING BASE.PY AND GET YOURSELF TOGETHER!")
             sys.stderr.write("theese models are not concreted, yet")
             sys.stderr.write("\n\t+ ")
             sys.stderr.write("\n\t+ ".join(repr(m) for m in self.pool.registerd_models))
             sys.stderr.write("\nplease. self.setup(db_type, new_name)\n")
             return self.pool.registerd_models
+
 
 def get_management(dummy_name="*dummy*"):
     pool = ModelPool()

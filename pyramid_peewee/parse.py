@@ -11,6 +11,7 @@ url = mysql://pyramid:pyramid@localhost/pyramid
 url = postgresql://foo:bar@localhost:5432/mydatabase
 """
 
+
 def setup_from_url_factory(setup_function):
     def get_options(parsed, opts):
         r = opts or {}
@@ -30,5 +31,6 @@ def setup_from_url_factory(setup_function):
 
     def setup_from_url(url, opts=None):
         parsed = urlparse.urlparse(url)
-        return setup_function(parsed.scheme, _get_path(parsed), get_options(parsed, opts))
+        return setup_function(parsed.scheme, _get_path(parsed),
+                              connect_kwargs=get_options(parsed, opts))
     return setup_from_url

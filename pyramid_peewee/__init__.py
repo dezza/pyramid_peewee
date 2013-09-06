@@ -18,11 +18,11 @@ def peewee_management_setup_from_config(config, peewee_management,
 
     if "peewee.url" in settings:
         setup_from_url_factory(peewee_management.setup
-                               )(settings["peewee.url"], opts)
+                               )(settings["peewee.url"], fields, opts)
     else:
         dbname = settings["peewee.dbname"]
         dbtype = settings["peewee.db_type"]
-        peewee_management.setup(dbtype, dbname, connect_kwargs=opts)
+        peewee_management.setup(dbtype, dbname, fields=fields, connect_kwargs=opts)
 
 
 def includeme(config):

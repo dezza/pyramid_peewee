@@ -29,8 +29,8 @@ def setup_from_url_factory(setup_function):
         else:
             return parsed.path
 
-    def setup_from_url(url, opts=None):
+    def setup_from_url(url, fields=None, opts=None):
         parsed = urlparse.urlparse(url)
         return setup_function(parsed.scheme, _get_path(parsed),
-                              connect_kwargs=get_options(parsed, opts))
+                              fields, connect_kwargs=get_options(parsed, opts))
     return setup_from_url
